@@ -31,15 +31,15 @@ if ok {
 ## Roadmap
 
 ### MVP
-- [ ] Create cache structure
-- [ ] Implement `Set`
-- [ ] Implement `Get`
+- [x] Create cache structure
+- [x] Implement `Set`
+- [x] Implement `Get`
 - [ ] Implement `Delete`
 - [ ] Implement `Has`
 - [ ] Implement `Len`
-- [ ] Add TTL expiration
+- [x] Add lazy TTL expiration on read
 - [ ] Add background cleanup
-- [ ] Add tests
+- [x] Add tests
 
 ### Next
 - [ ] Add benchmarks
