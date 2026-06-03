@@ -34,9 +34,9 @@ if ok {
 - [x] Create cache structure
 - [x] Implement `Set`
 - [x] Implement `Get`
-- [ ] Implement `Delete`
-- [ ] Implement `Has`
-- [ ] Implement `Len`
+- [x] Implement `Delete`
+- [x] Implement `Has`
+- [x] Implement `Len`
 - [x] Add lazy TTL expiration on read
 - [ ] Add background cleanup
 - [x] Add tests
