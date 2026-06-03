@@ -249,3 +249,9 @@ func TestCache_CloseCanBeCalledMultipleTimes(t *testing.T) {
 	cache.Close()
 	cache.Close()
 }
+
+func TestCache_CloseWhenCleanupDisabled(t *testing.T) {
+	cache := New()
+
+	cache.Close()
+}
