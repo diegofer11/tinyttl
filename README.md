@@ -150,6 +150,12 @@ Open the HTML coverage report:
 go tool cover -html=coverage.out
 ```
 
+Run static analysis:
+
+```bash
+go vet ./...
+```
+
 ## Roadmap
 
 - [x] Create cache structure
