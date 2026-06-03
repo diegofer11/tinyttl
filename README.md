@@ -38,7 +38,7 @@ if ok {
 - [x] Implement `Has`
 - [x] Implement `Len`
 - [x] Add lazy TTL expiration on read
-- [ ] Add background cleanup
+- [x] Add background cleanup
 - [x] Add tests
 
 ### Next
