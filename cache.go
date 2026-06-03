@@ -1,7 +1,54 @@
 package tinyttl
 
-type Cache struct{}
+import (
+	"sync"
+	"time"
+)
+
+type cacheItem struct {
+	value     any
+	expiresAt time.Time
+}
+
+type Cache struct {
+	mu    sync.RWMutex
+	items map[string]cacheItem
+}
 
 func New() *Cache {
-	return &Cache{}
+	return &Cache{
+		items: make(map[string]cacheItem),
+	}
+}
+
+func (c *Cache) Set(key string, value any, ttl time.Duration) {
+	var expiresAt time.Time
+	if ttl > 0 {
+		expiresAt = time.Now().Add(ttl)
+	}
+
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	c.items[key] = cacheItem{
+		value:     value,
+		expiresAt: expiresAt,
+	}
+}
+
+func (c *Cache) Get(key string) (any, bool) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	item, exists := c.items[key]
+	if !exists {
+		return nil, false
+	}
+
+	if !item.expiresAt.IsZero() && time.Now().After(item.expiresAt) {
+		delete(c.items, key)
+		return nil, false
+	}
+
+	return item.value, true
 }
