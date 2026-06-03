@@ -199,3 +199,53 @@ func TestCache_LenDeletesExpiredItems(t *testing.T) {
 		t.Fatalf("expected non-expired item to remain in cache")
 	}
 }
+
+func TestCache_NewWithCleanupInterval(t *testing.T) {
+	cache := New(WithCleanupInterval(10 * time.Millisecond))
+	defer cache.Close()
+
+	if cache.cleanupInterval != 10*time.Millisecond {
+		t.Fatalf("expected cleanup interval to be 10ms, got %v", cache.cleanupInterval)
+	}
+
+	if cache.stopChan == nil {
+		t.Fatalf("expected stopChan to be initialized when cleanup is enabled")
+	}
+
+	if cache.doneChan == nil {
+		t.Fatalf("expected doneChan to be initialized when cleanup is enabled")
+	}
+}
+
+func TestCache_BackgroundCleanupRemovesExpiredItems(t *testing.T) {
+	cache := New(WithCleanupInterval(10 * time.Millisecond))
+	defer cache.Close()
+
+	cache.Set("toExpire", "value1", 10*time.Millisecond)
+
+	time.Sleep(20 * time.Millisecond)
+
+	if cache.Has("toExpire") {
+		t.Fatalf("expected background cleanup to remove expired key")
+	}
+}
+
+func TestCache_BackgroundCleanupKeepsNonExpiredItems(t *testing.T) {
+	cache := New(WithCleanupInterval(10 * time.Millisecond))
+	defer cache.Close()
+
+	cache.Set("key1", "value1", time.Minute)
+
+	time.Sleep(30 * time.Millisecond)
+
+	if !cache.Has("key1") {
+		t.Fatal("expected non-expired key to remain in cache")
+	}
+}
+
+func TestCache_CloseCanBeCalledMultipleTimes(t *testing.T) {
+	cache := New(WithCleanupInterval(10 * time.Millisecond))
+
+	cache.Close()
+	cache.Close()
+}
