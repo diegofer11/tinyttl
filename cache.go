@@ -10,6 +10,10 @@ type cacheItem struct {
 	expiresAt time.Time
 }
 
+// Cache is an in-memory TTL cache for string keys and arbitrary values.
+//
+// Expired items are removed lazily when accessed through Get, Has, or Len.
+// If background cleanup is enabled, expired items are also removed periodically.
 type Cache struct {
 	mu              sync.RWMutex
 	items           map[string]cacheItem
@@ -19,6 +23,7 @@ type Cache struct {
 	closeOnce       sync.Once
 }
 
+// New creates a new Cache with the provided options.
 func New(options ...Option) *Cache {
 	cache := &Cache{
 		items: make(map[string]cacheItem),
@@ -37,6 +42,10 @@ func New(options ...Option) *Cache {
 	return cache
 }
 
+// Set stores a value under the given key with the provided TTL.
+//
+// A positive TTL sets an expiration time for the item.
+// A non-positive TTL means the item does not expire.
 func (c *Cache) Set(key string, value any, ttl time.Duration) {
 	var expiresAt time.Time
 	if ttl > 0 {
@@ -52,6 +61,10 @@ func (c *Cache) Set(key string, value any, ttl time.Duration) {
 	}
 }
 
+// Get returns the value stored under the given key.
+//
+// It returns false if the key does not exist or if the item has expired.
+// Expired items are removed lazily during the call.
 func (c *Cache) Get(key string) (any, bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -69,6 +82,9 @@ func (c *Cache) Get(key string) (any, bool) {
 	return item.value, true
 }
 
+// Delete removes the value stored under the given key.
+//
+// If the key does not exist, Delete does nothing.
 func (c *Cache) Delete(key string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -76,6 +92,9 @@ func (c *Cache) Delete(key string) {
 	delete(c.items, key)
 }
 
+// Has reports whether a non-expired value exists for the given key.
+//
+// Expired items are removed lazily during the call.
 func (c *Cache) Has(key string) bool {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -93,6 +112,9 @@ func (c *Cache) Has(key string) bool {
 	return true
 }
 
+// Len returns the number of non-expired items currently stored in the cache.
+//
+// Expired items are removed lazily during the call.
 func (c *Cache) Len() int {
 	c.mu.Lock()
 	defer c.mu.Unlock()

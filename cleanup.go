@@ -28,6 +28,10 @@ func (c *Cache) deleteExpired() {
 	}
 }
 
+// Close stops the background cleanup goroutine if one is running.
+//
+// If background cleanup is not enabled, Close does nothing.
+// Close is safe to call multiple times.
 func (c *Cache) Close() {
 	if c.stopChan == nil || c.doneChan == nil {
 		return
