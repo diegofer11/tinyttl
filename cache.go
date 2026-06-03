@@ -11,14 +11,30 @@ type cacheItem struct {
 }
 
 type Cache struct {
-	mu    sync.RWMutex
-	items map[string]cacheItem
+	mu              sync.RWMutex
+	items           map[string]cacheItem
+	cleanupInterval time.Duration
+	stopChan        chan struct{}
+	doneChan        chan struct{}
+	closeOnce       sync.Once
 }
 
-func New() *Cache {
-	return &Cache{
+func New(options ...Option) *Cache {
+	cache := &Cache{
 		items: make(map[string]cacheItem),
 	}
+
+	for _, option := range options {
+		option(cache)
+	}
+
+	if cache.cleanupInterval > 0 {
+		cache.stopChan = make(chan struct{})
+		cache.doneChan = make(chan struct{})
+		go cache.startCleanup()
+	}
+
+	return cache
 }
 
 func (c *Cache) Set(key string, value any, ttl time.Duration) {
