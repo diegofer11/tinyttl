@@ -17,6 +17,7 @@ type cacheItem struct {
 type Cache struct {
 	mu              sync.RWMutex
 	items           map[string]cacheItem
+	stats           cacheStats
 	cleanupInterval time.Duration
 	stopChan        chan struct{}
 	doneChan        chan struct{}
@@ -59,6 +60,7 @@ func (c *Cache) Set(key string, value any, ttl time.Duration) {
 		value:     value,
 		expiresAt: expiresAt,
 	}
+	c.stats.sets++
 }
 
 // Get returns the value stored under the given key.
@@ -71,14 +73,17 @@ func (c *Cache) Get(key string) (any, bool) {
 
 	item, exists := c.items[key]
 	if !exists {
+		c.stats.misses++
 		return nil, false
 	}
 
 	if c.isExpired(item) {
 		delete(c.items, key)
+		c.stats.expirations++
+		c.stats.misses++
 		return nil, false
 	}
-
+	c.stats.hits++
 	return item.value, true
 }
 
@@ -89,7 +94,10 @@ func (c *Cache) Delete(key string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	delete(c.items, key)
+	if _, exists := c.items[key]; exists {
+		delete(c.items, key)
+		c.stats.deletes++
+	}
 }
 
 // Has reports whether a non-expired value exists for the given key.
@@ -106,6 +114,7 @@ func (c *Cache) Has(key string) bool {
 
 	if c.isExpired(item) {
 		delete(c.items, key)
+		c.stats.expirations++
 		return false
 	}
 
@@ -123,6 +132,7 @@ func (c *Cache) Len() int {
 	for key, item := range c.items {
 		if c.isExpired(item) {
 			delete(c.items, key)
+			c.stats.expirations++
 			continue
 		}
 		count++
