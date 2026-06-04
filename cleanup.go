@@ -24,6 +24,7 @@ func (c *Cache) deleteExpired() {
 	for key, item := range c.items {
 		if c.isExpired(item) {
 			delete(c.items, key)
+			c.stats.expirations++
 		}
 	}
 }
