@@ -156,6 +156,14 @@ Run static analysis:
 go vet ./...
 ```
 
+## Benchmarks
+
+Run benchmarks with:
+
+```bash
+go test -run=^$ -bench=. -benchmem
+```
+
 ## Roadmap
 
 - [x] Create cache structure
