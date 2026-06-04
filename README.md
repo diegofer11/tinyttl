@@ -177,9 +177,9 @@ go test -run=^$ -bench=. -benchmem
 - [x] Add tests
 - [x] Add public API documentation
 - [x] Add usage examples
-- [ ] Add CI quality checks
-- [ ] Add benchmarks
-- [ ] Add statistics
+- [x] Add CI quality checks
+- [x] Add benchmarks
+- [x] Add statistics
 - [ ] Add hooks/callbacks
 - [ ] Explore generics support
 
