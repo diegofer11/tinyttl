@@ -17,3 +17,10 @@ func WithCleanupInterval(interval time.Duration) Option {
 		}
 	}
 }
+
+// WithHooks configures hooks for cache events.
+func WithHooks(hooks Hooks) Option {
+	return func(c *Cache) {
+		c.hooks = hooks
+	}
+}

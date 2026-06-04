@@ -19,12 +19,34 @@ func (c *Cache) startCleanup() {
 
 func (c *Cache) deleteExpired() {
 	c.mu.Lock()
-	defer c.mu.Unlock()
+
+	var expired []struct {
+		key   string
+		value any
+	}
 
 	for key, item := range c.items {
 		if c.isExpired(item) {
 			delete(c.items, key)
 			c.stats.expirations++
+			if c.hooks.OnExpire != nil {
+				expired = append(expired, struct {
+					key   string
+					value any
+				}{
+					key:   key,
+					value: item.value,
+				})
+			}
+		}
+	}
+
+	onExpire := c.hooks.OnExpire
+	c.mu.Unlock()
+
+	if onExpire != nil {
+		for _, item := range expired {
+			onExpire(item.key, item.value)
 		}
 	}
 }
