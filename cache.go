@@ -18,6 +18,7 @@ type Cache struct {
 	mu              sync.RWMutex
 	items           map[string]cacheItem
 	stats           cacheStats
+	hooks           Hooks
 	cleanupInterval time.Duration
 	stopChan        chan struct{}
 	doneChan        chan struct{}
@@ -54,13 +55,17 @@ func (c *Cache) Set(key string, value any, ttl time.Duration) {
 	}
 
 	c.mu.Lock()
-	defer c.mu.Unlock()
-
 	c.items[key] = cacheItem{
 		value:     value,
 		expiresAt: expiresAt,
 	}
 	c.stats.sets++
+	onSet := c.hooks.OnSet
+	c.mu.Unlock()
+
+	if onSet != nil {
+		onSet(key, value)
+	}
 }
 
 // Get returns the value stored under the given key.
@@ -69,11 +74,11 @@ func (c *Cache) Set(key string, value any, ttl time.Duration) {
 // Expired items are removed lazily during the call.
 func (c *Cache) Get(key string) (any, bool) {
 	c.mu.Lock()
-	defer c.mu.Unlock()
 
 	item, exists := c.items[key]
 	if !exists {
 		c.stats.misses++
+		c.mu.Unlock()
 		return nil, false
 	}
 
@@ -81,10 +86,22 @@ func (c *Cache) Get(key string) (any, bool) {
 		delete(c.items, key)
 		c.stats.expirations++
 		c.stats.misses++
+
+		onExpire := c.hooks.OnExpire
+		value := item.value
+		c.mu.Unlock()
+
+		if onExpire != nil {
+			onExpire(key, value)
+		}
+
 		return nil, false
 	}
 	c.stats.hits++
-	return item.value, true
+	value := item.value
+	c.mu.Unlock()
+
+	return value, true
 }
 
 // Delete removes the value stored under the given key.
@@ -92,11 +109,22 @@ func (c *Cache) Get(key string) (any, bool) {
 // If the key does not exist, Delete does nothing.
 func (c *Cache) Delete(key string) {
 	c.mu.Lock()
-	defer c.mu.Unlock()
 
-	if _, exists := c.items[key]; exists {
-		delete(c.items, key)
-		c.stats.deletes++
+	item, exists := c.items[key]
+	if !exists {
+		c.mu.Unlock()
+		return
+	}
+
+	delete(c.items, key)
+	c.stats.deletes++
+	onDelete := c.hooks.OnDelete
+
+	value := item.value
+	c.mu.Unlock()
+
+	if onDelete != nil {
+		onDelete(key, value)
 	}
 }
 
@@ -105,19 +133,27 @@ func (c *Cache) Delete(key string) {
 // Expired items are removed lazily during the call.
 func (c *Cache) Has(key string) bool {
 	c.mu.Lock()
-	defer c.mu.Unlock()
 
 	item, exists := c.items[key]
 	if !exists {
+		c.mu.Unlock()
 		return false
 	}
 
 	if c.isExpired(item) {
 		delete(c.items, key)
 		c.stats.expirations++
+		onExpire := c.hooks.OnExpire
+		value := item.value
+		c.mu.Unlock()
+
+		if onExpire != nil {
+			onExpire(key, value)
+		}
 		return false
 	}
 
+	c.mu.Unlock()
 	return true
 }
 
@@ -126,17 +162,40 @@ func (c *Cache) Has(key string) bool {
 // Expired items are removed lazily during the call.
 func (c *Cache) Len() int {
 	c.mu.Lock()
-	defer c.mu.Unlock()
 
 	count := 0
+	var expired []struct {
+		key   string
+		value any
+	}
+
 	for key, item := range c.items {
 		if c.isExpired(item) {
 			delete(c.items, key)
 			c.stats.expirations++
+			if c.hooks.OnExpire != nil {
+				expired = append(expired, struct {
+					key   string
+					value any
+				}{
+					key:   key,
+					value: item.value,
+				})
+			}
 			continue
 		}
 		count++
 	}
+
+	onExpire := c.hooks.OnExpire
+	c.mu.Unlock()
+
+	if onExpire != nil {
+		for _, item := range expired {
+			onExpire(item.key, item.value)
+		}
+	}
+
 	return count
 }
 
