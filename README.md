@@ -166,7 +166,7 @@ go test -run=^$ -bench=. -benchmem
 
 ## Roadmap
 
-- [x] Create cache structure
+- [x] Create a cache structure
 - [x] Implement `Set`
 - [x] Implement `Get`
 - [x] Implement `Delete`
@@ -180,7 +180,7 @@ go test -run=^$ -bench=. -benchmem
 - [x] Add CI quality checks
 - [x] Add benchmarks
 - [x] Add statistics
-- [ ] Add hooks/callbacks
+- [x] Add hooks/callbacks
 - [ ] Explore generics support
 
 ## License
