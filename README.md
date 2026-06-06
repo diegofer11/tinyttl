@@ -4,6 +4,21 @@
 
 It provides a simple API for storing values with optional expiration times, lazy expiration on access, and optional background cleanup for expired items.
 
+## Status
+
+`tinyttl` is currently in active `0.x` development.
+
+The library is already usable for real projects and includes:
+
+- TTL-based expiration
+- lazy expiration on access
+- optional background cleanup
+- cache statistics
+- event hooks
+- benchmark coverage
+
+The API is intentionally small and focused, but may continue evolving as concurrency and performance features improve.
+
 ## Features
 
 - In-memory cache with string keys
@@ -179,6 +194,7 @@ go test -run=^$ -bench=. -benchmem
 - [x] Add usage examples
 - [x] Add CI quality checks
 - [x] Add benchmarks
+- [x] Add concurrent benchmarks
 - [x] Add statistics
 - [x] Add hooks/callbacks
 - [ ] Explore generics support
