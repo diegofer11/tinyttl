@@ -179,6 +179,7 @@ go test -run=^$ -bench=. -benchmem
 - [x] Add usage examples
 - [x] Add CI quality checks
 - [x] Add benchmarks
+- [x] Add concurrent benchmarks
 - [x] Add statistics
 - [x] Add hooks/callbacks
 - [ ] Explore generics support
