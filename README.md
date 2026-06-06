@@ -149,13 +149,13 @@ fmt.Println(cache.Len())
 Run tests:
 
 ```bash
-go test ./...
+go test
 ```
 
 Run tests with coverage:
 
 ```bash
-go test ./... -coverprofile=coverage.out
+go test -coverprofile=coverage.out
 go tool cover -func=coverage.out
 ```
 
@@ -168,7 +168,7 @@ go tool cover -html=coverage.out
 Run static analysis:
 
 ```bash
-go vet ./...
+go vet
 ```
 
 ## Benchmarks
