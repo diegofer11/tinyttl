@@ -1,5 +1,8 @@
 # tinyttl
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/diegofer11/tinyttl.svg)](https://pkg.go.dev/github.com/diegofer11/tinyttl)
+[![Go Report Card](https://goreportcard.com/badge/github.com/diegofer11/tinyttl)](https://goreportcard.com/report/github.com/diegofer11/tinyttl)
+
 `tinyttl` is a lightweight in-memory TTL cache for Go.
 
 It provides a simple API for storing values with optional expiration times, lazy expiration on access, and optional background cleanup for expired items.
