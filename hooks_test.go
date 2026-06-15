@@ -182,3 +182,41 @@ func TestCache_OnExpireHookOnBackgroundCleanup(t *testing.T) {
 		t.Fatalf("expected OnExpire hook to be called 1 time, got %d", called)
 	}
 }
+
+func TestCache_OnSetHookOnOverwrite(t *testing.T) {
+	var called int
+
+	cache := New(WithHooks(Hooks{
+		OnSet: func(key string, value any) {
+			called++
+		},
+	}))
+
+	cache.Set("key", "value", time.Minute)
+	cache.Set("key", "new-value", time.Minute)
+
+	if called != 2 {
+		t.Fatalf("expected OnSet hook to be called 2 times, got %d", called)
+	}
+}
+
+func TestCache_OnExpireHookIsCalledOnlyOncePerEntry(t *testing.T) {
+	var called int
+
+	cache := New(WithHooks(Hooks{
+		OnExpire: func(key string, value any) {
+			called++
+		},
+	}))
+
+	cache.Set("key", "value", 10*time.Millisecond)
+	time.Sleep(20 * time.Millisecond)
+
+	_, _ = cache.Get("key")
+	_ = cache.Has("key")
+	_ = cache.Len()
+
+	if called != 1 {
+		t.Fatalf("expected OnExpire hook to be called 1 time, got %d", called)
+	}
+}

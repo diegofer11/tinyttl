@@ -75,6 +75,16 @@ Expired items are removed lazily when accessed through:
 - `Has`
 - `Len`
 
+## Semantics
+
+- A TTL greater than zero sets an expiration time for the item.
+- A TTL less than or equal to zero means the item does not expire.
+- Expiration is lazy on `Get`, `Has`, and `Len`.
+- Optional background cleanup can remove expired items periodically.
+- `Has` does not count as a cache hit or miss.
+- `Delete` only affects statistics when an existing key is removed.
+- If background cleanup is enabled, call `Close()` when the cache is no longer needed.
+
 ## Background cleanup
 
 You can enable periodic cleanup of expired items with `WithCleanupInterval`:

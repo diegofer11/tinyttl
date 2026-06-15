@@ -200,3 +200,40 @@ func TestCache_Stats_ExpirationOnBackgroundCleanup(t *testing.T) {
 		t.Fatalf("expected Expirations to be 1, got %d", stats.Expirations)
 	}
 }
+
+func TestCache_Stats_SetOverwriteCountAsAnotherSet(t *testing.T) {
+	cache := New()
+	cache.Set("key", "value1", time.Minute)
+	cache.Set("key", "value2", time.Minute)
+
+	stats := cache.Stats()
+
+	if stats.Sets != 2 {
+		t.Fatalf("expected Sets to be 2, got %d", stats.Sets)
+	}
+}
+
+func TestCache_Stats_ExpirationIsCountedOnlyOnce(t *testing.T) {
+	cache := New()
+	cache.Set("key", "value", 10*time.Millisecond)
+	time.Sleep(20 * time.Millisecond)
+
+	if _, found := cache.Get("key"); found {
+		t.Fatal("expected key to be expired")
+	}
+	if cache.Has("key") {
+		t.Fatal("expected key to be expired")
+	}
+	if cache.Len() != 0 {
+		t.Fatal("expected cache to be empty")
+	}
+
+	stats := cache.Stats()
+
+	if stats.Expirations != 1 {
+		t.Fatalf("expected Expirations to be 1, got %d", stats.Expirations)
+	}
+	if stats.Misses != 1 {
+		t.Fatalf("expected Misses to be 1, got %d", stats.Misses)
+	}
+}
