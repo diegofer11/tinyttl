@@ -15,6 +15,7 @@ func ExampleNew() {
 	value, found := cache.Get("message")
 	if !found {
 		fmt.Println("not found")
+		return
 	}
 
 	fmt.Println(value)
@@ -31,6 +32,7 @@ func ExampleCache_Set_noExpiration() {
 		fmt.Println("not found")
 		return
 	}
+
 	fmt.Println(value)
 	// Output: enabled
 }
@@ -46,4 +48,31 @@ func ExampleWithCleanupInterval() {
 	}
 
 	// Output: session exists
+}
+
+func ExampleCache_Stats() {
+	cache := tinyttl.New()
+
+	cache.Set("message", "hello", time.Minute)
+	_, _ = cache.Get("message")
+	_, _ = cache.Get("missing")
+
+	stats := cache.Stats()
+
+	fmt.Printf("hits=%d misses=%d sets=%d\n", stats.Hits, stats.Misses, stats.Sets)
+	// Output: hits=1 misses=1 sets=1
+}
+
+func ExampleWithHooks() {
+	cache := tinyttl.New(
+		tinyttl.WithHooks(tinyttl.Hooks{
+			OnSet: func(key string, value any) {
+				fmt.Printf("set %s=%v\n", key, value)
+			},
+		}),
+	)
+
+	cache.Set("user:1", "Diego", time.Minute)
+
+	// Output: set user:1=Diego
 }
