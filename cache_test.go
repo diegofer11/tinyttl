@@ -255,3 +255,31 @@ func TestCache_CloseWhenCleanupDisabled(t *testing.T) {
 
 	cache.Close()
 }
+
+func TestCache_NewWithZeroCleanupIntervalDoesNotStartCleanup(t *testing.T) {
+	cache := New(WithCleanupInterval(0))
+
+	if cache.cleanupInterval != 0 {
+		t.Fatalf("expected cleanup interval to be 0, got %v", cache.cleanupInterval)
+	}
+	if cache.stopChan != nil {
+		t.Fatal("expected stopChan to be nil when cleanup is disabled")
+	}
+	if cache.doneChan != nil {
+		t.Fatal("expected doneChan to be nil when cleanup is disabled")
+	}
+}
+
+func TestCache_NewWithNegativeCleanupIntervalDoesNotStartCleanup(t *testing.T) {
+	cache := New(WithCleanupInterval(-1 * time.Second))
+
+	if cache.cleanupInterval != 0 {
+		t.Fatalf("expected cleanup interval remain 0, got %v", cache.cleanupInterval)
+	}
+	if cache.stopChan != nil {
+		t.Fatal("expected stopChan to be nil when cleanup is disabled")
+	}
+	if cache.doneChan != nil {
+		t.Fatal("expected doneChan to be nil when cleanup is disabled")
+	}
+}
