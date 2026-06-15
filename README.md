@@ -5,21 +5,13 @@
 
 `tinyttl` is a lightweight in-memory TTL cache for Go.
 
-It provides a small and focused API for storing values with optional expiration times, lazy expiration on access, optional background cleanup, statistics, and event hooks.
+It provides a small and stable API for storing values with optional expiration times, lazy expiration on access, optional background cleanup, statistics, and event hooks.
 
-## Status
+## Stability
 
-`tinyttl` is currently in active `0.x` development on the path to `v1.0.0`.
+`tinyttl` `v1.0.0` marks the first stable release of the library.
 
-The library is already usable for real projects and is being refined with a focus on:
-
-- API clarity
-- predictable expiration semantics
-- correctness under concurrent access
-- simple adoption
-- lightweight behavior
-
-The goal for `v1.0.0` is a stable and well-documented core API.
+The core public API is considered stable and suitable for adoption in production applications that need a small in-memory TTL cache with predictable behavior and minimal setup.
 
 ## Features
 
@@ -30,7 +22,7 @@ The goal for `v1.0.0` is a stable and well-documented core API.
 - Optional background cleanup
 - Cache statistics
 - Event hooks
-- Simple and minimal API
+- Small and focused API
 
 ## When to use
 
@@ -247,24 +239,14 @@ go test -run=^$ -bench=. -benchmem
 
 ## Roadmap
 
-- [x] Create a cache structure
-- [x] Implement `Set`
-- [x] Implement `Get`
-- [x] Implement `Delete`
-- [x] Implement `Has`
-- [x] Implement `Len`
-- [x] Add lazy TTL expiration on read
-- [x] Add background cleanup
-- [x] Add tests
-- [x] Add public API documentation
-- [x] Add usage examples
-- [x] Add CI quality checks
-- [x] Add benchmarks
-- [x] Add concurrent benchmarks
-- [x] Add statistics
-- [x] Add hooks/callbacks
-- [ ] Final API freeze review before `v1.0.0`
-- [ ] Stable `v1.0.0`
+Future releases may expand functionality, but `v1.0.0` establishes the core API and behavior as stable.
+
+Possible future areas of exploration include:
+
+- generics support
+- sharding
+- advanced expiration policies
+- additional performance optimizations
 
 ## License
 
