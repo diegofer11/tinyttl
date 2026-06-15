@@ -1,10 +1,16 @@
 package tinyttl
 
+// Stats contain a snapshot of cache usage statistics.
 type Stats struct {
-	Sets        uint64
-	Hits        uint64
-	Misses      uint64
-	Deletes     uint64
+	// Sets is the number of Set calls that stored a value in the cache.
+	Sets uint64
+	// Hits is the number of successful Get calls.
+	Hits uint64
+	// Misses is the number of Get calls that did not find a value in the cache.
+	Misses uint64
+	// Deletes is the number of Delete calls that removed a value from the cache.
+	Deletes uint64
+	// Expirations is the number of expired items that were removed from the cache.
 	Expirations uint64
 }
 
