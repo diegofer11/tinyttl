@@ -10,9 +10,8 @@ func BenchmarkCache_Set(b *testing.B) {
 	cache := New()
 
 	b.ReportAllocs()
-	b.ResetTimer()
 
-	for i := 0; i < b.N; i++ {
+	for i := 0; b.Loop(); i++ {
 		cache.Set(strconv.Itoa(i), "value", time.Minute)
 	}
 }
@@ -22,9 +21,8 @@ func BenchmarkCache_Get(b *testing.B) {
 	cache.Set("key", "value", time.Minute)
 
 	b.ReportAllocs()
-	b.ResetTimer()
 
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_, _ = cache.Get("key")
 	}
 }
@@ -33,9 +31,8 @@ func BenchmarkCache_GetMissing(b *testing.B) {
 	cache := New()
 
 	b.ReportAllocs()
-	b.ResetTimer()
 
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_, _ = cache.Get("missing")
 	}
 }
@@ -45,9 +42,8 @@ func BenchmarkCache_Has(b *testing.B) {
 	cache.Set("key", "value", time.Minute)
 
 	b.ReportAllocs()
-	b.ResetTimer()
 
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_ = cache.Has("key")
 	}
 }
@@ -75,9 +71,8 @@ func BenchmarkCache_Len(b *testing.B) {
 	}
 
 	b.ReportAllocs()
-	b.ResetTimer()
 
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		_ = cache.Len()
 	}
 }
@@ -134,9 +129,8 @@ func BenchmarkCache_MixedReadWrite(b *testing.B) {
 	}
 
 	b.ReportAllocs()
-	b.ResetTimer()
 
-	for i := 0; i < b.N; i++ {
+	for i := 0; b.Loop(); i++ {
 		switch i % 20 {
 		case 0, 1:
 			cache.Set(strconv.Itoa(i+1000), "value", time.Minute)
@@ -164,9 +158,8 @@ func BenchmarkCache_GetWithExpiredEntries(b *testing.B) {
 	time.Sleep(20 * time.Millisecond)
 
 	b.ReportAllocs()
-	b.ResetTimer()
 
-	for i := 0; i < b.N; i++ {
+	for i := 0; b.Loop(); i++ {
 		if i%10 == 0 {
 			_, _ = cache.Get("expired-" + strconv.Itoa(i%100))
 		} else {
